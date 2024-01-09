@@ -1,4 +1,0 @@
-user=keith
-pass=baker2023
-cert=iocBoot/iocUaDemoServer/cert.pem
-key=iocBoot/iocUaDemoServer/private_key.pem

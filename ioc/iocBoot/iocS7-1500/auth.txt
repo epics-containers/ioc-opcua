@@ -1,2 +1,0 @@
-user=dls
-pass=Diamond01

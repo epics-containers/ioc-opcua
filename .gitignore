@@ -10,3 +10,8 @@ ibek
 
 # dont save workspaces as other users will have differing folders
 *workspace
+
+# ignore output folders of epics builds
+**/O.*
+ioc/bin
+ioc/lib
