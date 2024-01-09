@@ -51,7 +51,7 @@ ENV TARGET_ARCHITECTURE ${TARGET_ARCHITECTURE}
 RUN apt-get update && apt-get install -y libxml2 libssl-dev
 
 # TODO remove these 2 when OPC UA is a proper support module
-RUN unlink epics/ioc
+RUN unlinkg epics/ioc
 COPY --from=developer /epics/ioc-ts99i-ps-01/ioc /epics/ioc
 
 ENTRYPOINT ["/bin/bash", "-c", "${IOC}/start.sh"]
