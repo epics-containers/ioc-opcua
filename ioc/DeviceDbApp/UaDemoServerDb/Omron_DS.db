@@ -1,0 +1,16 @@
+# Database connecting to an Omron PLC example server
+# Dynamic Scalars
+
+#record(longin, "$(P)$(R)liint32") {
+#    field(DTYP, "OPCUA")
+#    field(INP,  "@$(SUBS) ns=4;s=keithcounter")
+#    field(SCAN, "I/O Intr")
+#    field(TSE,  "-2")
+#}
+
+record(longin, "$(P)$(R)PLC:TIME") {
+    field(DTYP, "OPCUA")
+    field(INP,  "@$(SUBS) ns=4;s=PLC_TIME")
+    field(SCAN, "I/O Intr")
+#    field(TSE,  "-2")
+}
