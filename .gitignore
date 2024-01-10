@@ -1,3 +1,12 @@
+*~
+O.*
+bin
+dbd
+db
+data
+lib
+
+
 .history
 repos*
 **/.ruff_cache/
