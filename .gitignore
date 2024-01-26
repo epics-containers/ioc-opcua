@@ -11,7 +11,5 @@ ibek
 # dont save workspaces as other users will have differing folders
 *workspace
 
-# ignore output folders of epics builds
-**/O.*
-ioc/bin
-ioc/lib
+# config folder is there to be replaced there is just a dummy with Readme.
+ioc/config
