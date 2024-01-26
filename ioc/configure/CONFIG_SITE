@@ -3,5 +3,3 @@
 CROSS_COMPILER_TARGET_ARCHS =
 CHECK_RELEASE = NO
 
-# needs to match what the opcua sdk is built with?
-USR_CXXFLAGS_Linux += -std=c++11

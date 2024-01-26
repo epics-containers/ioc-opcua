@@ -65,7 +65,7 @@ function ibek_error {
 
     # Wait indefinitely so the container does not exit and restart continually.
     while true; do
-        sleep 1
+        sleep 1000
     done
 }
 
