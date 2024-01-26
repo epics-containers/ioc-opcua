@@ -21,4 +21,5 @@ ibek
 *workspace
 
 # config folder is there to be replaced there is just a dummy with Readme.
-ioc/config
+# NOTE: we are shipping a sample ioc instance so dont ignore this folder
+# ioc/config
