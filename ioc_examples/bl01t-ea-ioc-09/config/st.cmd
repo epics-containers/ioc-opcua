@@ -12,6 +12,6 @@ opcuaOptions OPC1 debug=0
 opcuaOptions OPC1 sec-mode=None
 
 ## Siemens S7-1500 PLC
-dbLoadRecords "S7-1500-server.db", "P=OPC:,R=,SESS=OPC1,SUBS=SUB1"
+dbLoadRecords "$(OPCUA)/exampleTop/db/S7-1500-server.db", "P=OPC:,R=,SESS=OPC1,SUBS=SUB1"
 
 iocInit
