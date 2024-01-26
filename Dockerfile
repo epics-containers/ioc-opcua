@@ -6,13 +6,17 @@ ARG REGISTRY=ghcr.io/epics-containers
 
 FROM  ${REGISTRY}/epics-base-${TARGET_ARCHITECTURE}-developer:${BASE} AS developer
 
+# The devcontainer mounts the project root to /epics/generic-source
+# Using the same location here makes devcontainer/runtime differences transparent.
+ENV SOURCE_FOLDER=/epics/generic-source
+# connect ioc source folder its know location
+RUN ln -s ${SOURCE_FOLDER}/ioc ${IOC}
+
 # Get latest ibek while in development. Will come from epics-base when stable
 COPY requirements.txt requirements.txt
 RUN pip install --upgrade -r requirements.txt
 
-# The devcontainer mounts the project root to /epics/ioc-adsimdetector. Using
-# the same location here makes devcontainer/runtime differences transparent.
-WORKDIR /epics/ioc-ts99i-ps-01/ibek-support
+WORKDIR ${SOURCE_FOLDER}/ibek-support
 
 # copy the global ibek files
 COPY ibek-support/_global/ _global
@@ -20,21 +24,19 @@ COPY ibek-support/_global/ _global
 COPY ibek-support/iocStats/ iocStats
 RUN iocStats/install.sh 3.1.16
 
-# non-generic specifics for ts99i-ps-01 --- TODO genericize
-RUN apt-get update && apt-get install -y libxml2-dev libssl-dev
+COPY ibek-support/opcua opcua
+RUN opcua/install.sh v0.9.5
 
-# compile the IOC instance
-COPY ioc/ /epics/ioc-ts99i-ps-01/ioc
-RUN cd /epics/ioc-ts99i-ps-01/ioc && make
-# TODO remove when OPC UA is a proper support module
-RUN ln -s /epics/ioc-ts99i-ps-01/ioc /epics/ioc
+# get the ioc source and build it
+COPY ioc ${SOURCE_FOLDER}/ioc
+RUN cd ${IOC} && make
 
 ##### runtime preparation stage ################################################
 
 FROM developer AS runtime_prep
 
 # get the products from the build stage and reduce to runtime assets only
-RUN ibek ioc extract-runtime-assets /assets
+RUN ibek ioc extract-runtime-assets /assets ${SOURCE_FOLDER}/ibek*
 
 ##### runtime stage ############################################################
 
@@ -46,12 +48,5 @@ COPY --from=runtime_prep /assets /
 # install runtime system dependencies, collected from install.sh script
 RUN ibek support apt-install --runtime
 ENV TARGET_ARCHITECTURE ${TARGET_ARCHITECTURE}
-
-# non-generic specifics for ts99i-ps-01 --- TODO genericize
-RUN apt-get update && apt-get install -y libxml2 libssl-dev
-
-# TODO remove these 2 when OPC UA is a proper support module
-RUN unlink epics/ioc
-COPY --from=developer /epics/ioc-ts99i-ps-01/ioc /epics/ioc
 
 ENTRYPOINT ["/bin/bash", "-c", "${IOC}/start.sh"]
