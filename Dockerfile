@@ -26,9 +26,8 @@ COPY ibek-support/_global/ _global
 COPY ibek-support/iocStats/ iocStats
 RUN iocStats/install.sh 3.2.0
 
-################################################################################
-#  TODO - Add further support module installations here
-################################################################################
+COPY ibek-support/opcua opcua
+RUN opcua/install.sh v0.9.5
 
 # get the ioc source and build it
 COPY ioc ${SOURCE_FOLDER}/ioc
