@@ -1,0 +1,9 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: 3.4.0
+_src_path: gh:epics-containers/ioc-template
+description: Generic IOC for controlling PLCs via the opcua protocol
+git_platform: github.com
+github_org: epics-containers
+name: ioc-opcua
+repo_uri: git@github.com:epics-containers/ioc-opcua.git
+rtems: false

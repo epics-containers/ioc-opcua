@@ -1,12 +1,3 @@
-*~
-O.*
-bin
-dbd
-db
-data
-lib
-
-
 .history
 repos*
 **/.ruff_cache/
@@ -21,5 +12,11 @@ ibek
 *workspace
 
 # config folder is there to be replaced there is just a dummy with Readme.
-# NOTE: we are shipping a sample ioc instance so dont ignore this folder
-# ioc/config
+ioc/config
+
+# podman may leave this around in aborted builds
+.build.swp
+
+# this gets updated during RTEMS builds in devcontainer but we dont want to commit it
+# TODO this entry does not work - why on earth not?
+ioc/configure/CONFIG_SITE.Common.linux-x86_64
