@@ -25,3 +25,4 @@ ioc/configure/CONFIG_SITE.Common.linux-x86_64
 
 **/.ansible
 **/*build.log
+.claude/*.local.json
