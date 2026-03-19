@@ -13,8 +13,11 @@ CONF=/epics/ioc/config
 # log commands and stop on errorsr
 set -ex
 
-# use docker if available else use podman
-if docker version &>/dev/null; then docker=docker; else docker=podman; fi
+# prefer docker but use podman if USE_PODMAN is set
+if docker version &> /dev/null && [[ -z $USE_PODMAN ]]
+    then docker=docker
+    else docker=podman
+fi
 
 cd ${ROOT}
 
@@ -23,7 +26,11 @@ export TAG=${TAG:-ec_test}
 if [[ ${TAG} == "ec_test" ]] ; then TARGET=runtime ./build; fi
 
 # try out a test ibek config IOC instance with the generic IOC
-result=$($docker run --rm -v ${THIS}/config:${CONF} ${TAG} /epics/ioc/start.sh 2>&1)
+mounts=" -v ${THIS}/config:${CONF}:ro"
+# allows local testing of a modified start.sh script
+mounts+=" -v ${ROOT}/ioc/start.sh:/epics/ioc/start.sh:ro"
+opts="--rm --security-opt=label=disable"
+result=$($docker run ${opts} ${mounts} ${TAG} /epics/ioc/start.sh 2>&1)
 
 # check that the IOC output expected results
 if echo "${result}" | grep -i error; then
@@ -35,6 +42,3 @@ elif [[ ! ${result} =~ "5.15" || ! ${result} =~ "/epics/runtime/st.cmd" ]]; then
 fi
 
 echo "Tests passed!"
-
-
-

@@ -12,21 +12,20 @@
             // "IMAGE_EXT": "-rtems-beatnik"
         }
     },
-    "remoteEnv": {
+    "containerEnv": {
         // provides a name for epics-containers to use in bash prompt etc.
         "EC_PROJECT": "${localWorkspaceFolderBasename}",
-        "EPICS_CA_AUTO_ADDR_LIST": "NO",
-        "EPICS_CA_ADDR_LIST": "127.0.0.1"
+        "IOC_NAME": "DEV_TEST_IOC",
+        // fixes this error: Ansible could not initialize the preferred locale: unsupported locale setting
+        "LC_ALL": "C.UTF-8",
+        // We put venv on a different volume to cache so have to copy
+        "UV_LINK_MODE": "copy"
     },
-    "features": {
-        // add quality of life features for developers including git config integration
-        "ghcr.io/devcontainers/features/common-utils:2": {
-            // don't upgrade to make this similar to the runtime container
-            "upgradePackages": false
-        }
-    },
-    // IMPORTANT for this devcontainer to work with docker EC_REMOTE_USER must be
-    // set to your user name. You will run with full sudo rights.
+    // outside of the container setup
+    "initializeCommand": "bash .devcontainer/initializeCommand ${devcontainerId}",
+    // IMPORTANT for this devcontainer to work with docker rootful
+    // EC_REMOTE_USER must be set to your user name. You will run with full
+    // sudo rights.
     // For podman it should be left blank. You will run as root but host mounts
     // will be owned by your user id.
     "remoteUser": "${localEnv:EC_REMOTE_USER}",
@@ -35,22 +34,34 @@
             // Add the IDs of extensions you want installed when the container is created.
             "extensions": [
                 "ms-python.vscode-pylance",
-                "tamasfe.even-better-toml",
                 "redhat.vscode-yaml",
-                "ryanluker.vscode-coverage-gutters",
                 "epicsdeb.vscode-epics",
-                "charliermarsh.ruff"
+                "charliermarsh.ruff",
+                "ms-vscode.cpptools",
+                "redhat.ansible"
             ]
+        },
+        "settings": {
+            "python.defaultInterpreterPath": "/venv/bin/python",
+            "python.terminal.activateEnvInCurrentTerminal": false,
+            "python.terminal.activateEnvironment": false,
+            "python.testing.unittestEnabled": false,
+            "python.testing.pytestEnabled": true,
+            "editor.formatOnSave": true,
+            "editor.codeActionsOnSave": {
+                "source.organizeImports": "explicit"
+            },
+            "remote.autoForwardPorts": false,
+            "[python]": {
+                "editor.defaultFormatter": "charliermarsh.ruff"
+            }
         }
     },
-    // You can place any outside of the container before-launch commands here
-    "initializeCommand": "bash .devcontainer/initializeCommand ${devcontainerId}",
+    // Populate the user's terminal config folder with default config if it is blank
+    "onCreateCommand": "/root/terminal-config/ensure-user-terminal-config.sh",
     // One time global setup commands inside the container
     "postCreateCommand": "bash .devcontainer/postCreateCommand ${devcontainerId}",
     "runArgs": [
-        // IMPORTANT: this network must exist before the container is created
-        // source compose/environment.sh to create it before first use
-        "--network=channel_access_devcontainer",
         // Make sure SELinux does not disable write access to host filesystems like tmp
         "--security-opt=label=disable"
     ],
@@ -63,6 +74,18 @@
         // in this way the devcontainer and runtime look very similar
         "source=${localWorkspaceFolder},target=/epics/generic-source,type=bind",
         // Mount the opi folder so we can use phoebus from outside the container
-        "source=${localWorkspaceFolder}/opi/auto-generated,target=/epics/opi,type=bind"
+        "source=${localWorkspaceFolder}/opi/auto-generated,target=/epics/opi,type=bind", //
+        // Mount in the user terminal config folder so it can be edited
+        {
+            "source": "${localEnv:HOME}/.config/terminal-config",
+            "target": "/user-terminal-config",
+            "type": "bind"
+        },
+        // Keep a persistent cross container cache for uv
+        {
+            "source": "${localEnv:HOME}/.cache/uv",
+            "target": "/root/.cache/uv",
+            "type": "bind"
+        }
     ]
 }
