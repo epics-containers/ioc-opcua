@@ -36,7 +36,7 @@ COPY ibek-support/autosave/ autosave
 RUN ansible.sh autosave
 
 COPY ibek-support/opcua opcua
-RUN opcua/install.sh
+RUN ansible.sh opcua
 
 # get the ioc source and build it
 COPY ioc ${SOURCE_FOLDER}/ioc
