@@ -1,12 +1,6 @@
-ARG IMAGE_EXT
-
 ARG REGISTRY=ghcr.io/epics-containers
-ARG RUNTIME=${REGISTRY}/epics-base${IMAGE_EXT}-runtime:7.0.9ec5
-ARG DEVELOPER=${REGISTRY}/epics-base${IMAGE_EXT}-developer:7.0.9ec5
-# for pre-built common support and faster builds of this generic IOC:
-# - change above to￼DEVELOPER=${REGISTRY}/ioc-asyn${IMAGE_EXT}-developer:4.45ec2
-# - comment out uv pip install lines below (unless a newer ibek is needed)
-# - remove ansible.sh lines for all support modules provided by ioc-asyn
+ARG RUNTIME=${REGISTRY}/epics-base-runtime:7.0.10ec4-beta.2
+ARG DEVELOPER=${REGISTRY}/epics-base-developer:7.0.10ec4-beta.2
 
 ##### build stage ##############################################################
 FROM  ${DEVELOPER} AS developer
@@ -42,11 +36,18 @@ RUN ansible.sh opcua
 COPY ioc ${SOURCE_FOLDER}/ioc
 RUN ansible.sh ioc
 
+# generate a manifest of installed EPICS modules and python packages
+# IOC_VERSION is declared here, not earlier: every RUN after an ARG sees it,
+# so a new value (each branch or tag) would rebuild all the steps above
+ARG IOC_VERSION=unknown
+COPY scripts/generate_manifest.py /tmp/generate_manifest.py
+RUN python3 /tmp/generate_manifest.py "${IOC_VERSION}"
+
 ##### runtime preparation stage ################################################
 FROM developer AS runtime_prep
 
 # get the products from the build stage and reduce to runtime assets only
-RUN ibek ioc extract-runtime-assets /assets /python /usr/local/lib/libopen62541*
+RUN ibek ioc extract-runtime-assets /assets /python /epics/versions.json /usr/local/lib/libopen62541*
 
 ##### runtime stage ############################################################
 FROM ${RUNTIME} AS runtime
